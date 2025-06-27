@@ -1,16 +1,25 @@
 # zizmor-vscode
 
-A VS Code language client extension that provides integration with
-[zizmor]'s [LSP] server.
+A Visual Studio Code extension for [zizmor].
 
 [zizmor]: https://github.com/zizmorcore/zizmor
-[LSP]: https://microsoft.github.io/language-server-protocol/
 
+## Installation
 
-## Requirements
+> [!IMPORTANT]
+> You **must** have `zizmor` v1.11.0 or later installed; earlier versions
+> do not include LSP support. If `zizmor --version` shows a version below
+> 1.11.0, you **must** update `zizmor` to use this extension.
 
-- VS Code 1.74.0 or higher
-- `zizmor` binary must be installed and available in your PATH (or specify custom path in settings)
+To use this extension, you must have `zizmor` installed on your system.
+See [zizmor's installation documentation] for system-appropriate instructions.
+
+[zizmor's installation documentation]: https://docs.zizmor.sh/installation/
+
+Once you have `zizmor` installed, you can install this extension from
+the [VS Code Marketplace].
+
+[VS Code Marketplace]: TODO
 
 ## Extension Settings
 
@@ -43,7 +52,7 @@ npm run compile
 
 1. Open this project in VS Code
 2. Press `F5` to open a new Extension Development Host window
-3. Open a YAML file to test the extension
+3. Open an action or workflow file to test the extension
 
 ### Debugging
 
