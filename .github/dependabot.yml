@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "woodruffw"
+    assignees:
+      - "woodruffw"
+    labels:
+      - "dependencies"
+      - "javascript"
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+      webpack:
+        patterns:
+          - "webpack*"
+          - "*-loader"
+      vscode:
+        patterns:
+          - "@types/vscode"
+          - "@vscode/*"
+          - "vscode-*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
