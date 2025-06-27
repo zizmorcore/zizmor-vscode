@@ -1,24 +1,17 @@
 version: 2
 updates:
-  # Enable version updates for npm
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "06:00"
     open-pull-requests-limit: 10
     reviewers:
       - "woodruffw"
     assignees:
       - "woodruffw"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "javascript"
-    # Group related updates together
     groups:
       typescript-eslint:
         patterns:
@@ -32,7 +25,6 @@ updates:
           - "@types/vscode"
           - "@vscode/*"
           - "vscode-*"
-    # Allow both minor and patch updates
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
