@@ -1,0 +1,102 @@
+{
+    "name": "zizmor-vscode",
+    "displayName": "zizmor",
+    "description": "VS Code language client extension for zizmor's LSP server",
+    "repository": "https://github.com/zizmorcore/zizmor-vscode",
+    "version": "0.1.0",
+    "publisher": "William Woodruff",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters"
+    ],
+    "keywords": [
+        "zizmor",
+        "security",
+        "github-actions",
+        "yaml"
+    ],
+    "activationEvents": [
+        "onLanguage:yaml",
+        "onLanguage:yml"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "languages": [
+            {
+                "id": "yaml",
+                "extensions": [
+                    ".yml",
+                    ".yaml"
+                ],
+                "aliases": [
+                    "YAML",
+                    "yaml"
+                ]
+            }
+        ],
+        "commands": [
+            {
+                "command": "zizmor.restart",
+                "title": "Restart zizmor Language Server",
+                "category": "zizmor"
+            },
+            {
+                "command": "zizmor.showOutputChannel",
+                "title": "Show zizmor Output",
+                "category": "zizmor"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "zizmor",
+            "properties": {
+                "zizmor.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable zizmor language server"
+                },
+                "zizmor.executablePath": {
+                    "type": "string",
+                    "default": "zizmor",
+                    "description": "Path to the zizmor executable"
+                },
+                "zizmor.trace.server": {
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "off",
+                    "description": "Traces the communication between VS Code and the language server"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "package": "vsce package",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@types/node": "16.x",
+        "@types/vscode": "^1.74.0",
+        "@typescript-eslint/eslint-plugin": "^5.45.0",
+        "@typescript-eslint/parser": "^5.45.0",
+        "@vscode/vsce": "^3.6.0",
+        "eslint": "^8.28.0",
+        "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^8.1.0"
+    }
+}
