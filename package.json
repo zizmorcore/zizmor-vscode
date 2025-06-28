@@ -29,8 +29,7 @@
         "linting"
     ],
     "activationEvents": [
-        "onLanguage:yaml",
-        "onLanguage:yml"
+        "onLanguage:yaml"
     ],
     "qna": "https://github.com/orgs/zizmorcore/discussions",
     "sponsor": {
