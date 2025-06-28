@@ -2,7 +2,10 @@
     "name": "zizmor-vscode",
     "displayName": "zizmor",
     "description": "A Visual Studio Code extension for zizmor",
-    "repository": "https://github.com/zizmorcore/zizmor-vscode",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zizmorcore/zizmor-vscode"
+    },
     "homepage": "https://github.com/zizmorcore/zizmor-vscode",
     "bugs": {
         "url": "https://github.com/zizmorcore/zizmor-vscode/issues/new"
