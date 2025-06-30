@@ -21,7 +21,7 @@ See [zizmor's installation documentation] for system-appropriate instructions.
 Once you have `zizmor` installed, you can install this extension from
 the [VS Code Marketplace].
 
-[VS Code Marketplace]: TODO
+[VS Code Marketplace]: https://marketplace.visualstudio.com/items?itemName=zizmor.zizmor-vscode
 
 ## Extension Settings
 
