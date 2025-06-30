@@ -1,6 +1,7 @@
 .eslintrc.js
 .gitignore
 tsconfig.json
+mise.toml
 **/.vscode/
 **/.github/
 **/node_modules/
