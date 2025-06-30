@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as os from 'os';
+import * as path from 'path';
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -8,6 +10,16 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
+
+/**
+ * Expands tilde (~) in file paths to the user's home directory
+ */
+function expandTilde(filePath: string): string {
+    if (filePath.startsWith('~/')) {
+        return path.join(os.homedir(), filePath.slice(1));
+    }
+    return filePath;
+}
 
 export function activate(context: vscode.ExtensionContext) {
     // Get configuration
@@ -19,7 +31,8 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // Get the path to the zizmor executable
-    const executablePath = config.get<string>('executablePath', 'zizmor');
+    const rawExecutablePath = config.get<string>('executablePath', 'zizmor');
+    const executablePath = expandTilde(rawExecutablePath);
 
     // Define the server options
     const serverExecutable: Executable = {
