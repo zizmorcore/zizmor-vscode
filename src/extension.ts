@@ -14,7 +14,7 @@ import {
 let client: LanguageClient;
 
 const execAsync = promisify(exec);
-const MIN_ZIZMOR_VERSION = '1.15.0';
+const MIN_ZIZMOR_VERSION = '1.11.0';
 
 /**
  * Expands tilde (~) in file paths to the user's home directory
