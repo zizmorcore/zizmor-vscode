@@ -7,10 +7,10 @@ A Visual Studio Code extension for [zizmor].
 ## Installation
 
 > [!IMPORTANT]
-> You **must** have `zizmor` v1.15.0 or later installed; earlier versions
-> do not include full LSP support for all file types.
+> You **must** have `zizmor` v1.11.0 or later installed; earlier versions
+> do not include LSP support.
 >
-> If `zizmor --version` shows a version below 1.15.0, you **must** update
+> If `zizmor --version` shows a version below 1.11.0, you **must** update
 > `zizmor` to use this extension.
 
 To use this extension, you must have `zizmor` installed on your system.
