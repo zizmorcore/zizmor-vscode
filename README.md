@@ -62,6 +62,12 @@ npm run compile
 - Use the "Run Extension" launch configuration
 - Check the "Zizmor Language Server Trace" output channel for server communication
 
+### Building for release
+
+```bash
+npm run vsce:package
+```
+
 ## License
 
 This extension is licensed under the terms of the MIT license.
