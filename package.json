@@ -29,7 +29,8 @@
         "linting"
     ],
     "activationEvents": [
-        "onLanguage:yaml"
+        "onLanguage:yaml",
+        "onLanguage:github-actions-workflow"
     ],
     "qna": "https://github.com/orgs/zizmorcore/discussions",
     "sponsor": {
@@ -37,19 +38,6 @@
     },
     "main": "./dist/extension.js",
     "contributes": {
-        "languages": [
-            {
-                "id": "yaml",
-                "extensions": [
-                    ".yml",
-                    ".yaml"
-                ],
-                "aliases": [
-                    "YAML",
-                    "yaml"
-                ]
-            }
-        ],
         "commands": [
             {
                 "command": "zizmor.restart",
