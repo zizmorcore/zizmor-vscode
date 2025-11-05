@@ -127,6 +127,8 @@ function startLanguageServer(context: vscode.ExtensionContext, executablePath: s
         documentSelector: [
             { scheme: 'file', language: 'yaml', pattern: '**/.github/workflows/*.{yml,yaml}' },
             { scheme: 'file', language: 'yaml', pattern: '**/action.{yml,yaml}' },
+            { scheme: 'file', language: 'github-actions-workflow', pattern: '**/.github/workflows/*.{yml,yaml}' },
+            { scheme: 'file', language: 'github-actions-workflow', pattern: '**/action.{yml,yaml}' },
             { scheme: 'file', language: 'yaml', pattern: '**/.github/dependabot.{yml,yaml}' },
         ],
         traceOutputChannel: vscode.window.createOutputChannel('zizmor LSP trace')
