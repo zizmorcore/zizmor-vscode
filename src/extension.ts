@@ -1,20 +1,68 @@
-import * as vscode from 'vscode';
+import { exec } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
-import { exec } from 'child_process';
 import { promisify } from 'util';
+import * as vscode from 'vscode';
 import {
+    Executable,
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
-    TransportKind,
-    Executable
+    TransportKind
 } from 'vscode-languageclient/node';
+import { which } from './which';
 
 let client: LanguageClient;
 
 const execAsync = promisify(exec);
 const MIN_ZIZMOR_VERSION = '1.11.0';
+
+async function getZizmor(config: vscode.WorkspaceConfiguration): Promise<string | undefined> {
+    const rawConfiguredPath = config.get<string>('executablePath');
+
+    if (rawConfiguredPath) {
+        const configuredPath = await which(expandTilde(rawConfiguredPath));
+
+        if (configuredPath) {
+            console.log(`Using configured zizmor: ${configuredPath}`);
+            return configuredPath;
+        } else {
+            console.warn(`Configured zizmor not found: ${rawConfiguredPath}`);
+        }
+    }
+
+    const pathPath = await which('zizmor');
+    if (pathPath) {
+        console.log(`Using zizmor from PATH: ${pathPath}`);
+        return pathPath;
+    }
+
+    // It's particularly important to check common locations on macOS because of https://github.com/microsoft/vscode/issues/30847#issuecomment-420399383.
+    const commonPathsGlobalMacos = [
+        path.join(os.homedir(), ".cargo", "bin"),
+        path.join(os.homedir(), ".nix-profile", "bin"),
+        path.join(os.homedir(), ".local", "bin"),
+        path.join(os.homedir(), "bin"),
+        "/usr/bin/",
+        "/home/linuxbrew/.linuxbrew/bin/",
+        "/usr/local/bin/",
+        "/opt/homebrew/bin/",
+        "/opt/local/bin/",
+    ];
+
+    const commonPath = await which('zizmor', os.platform() === "darwin" ? {
+        path: commonPathsGlobalMacos.join('\0'),
+        delimiter: '\0'
+    } : undefined);
+
+    if (commonPath !== undefined) {
+        console.log(`Using common zizmor path: ${commonPath}`);
+        return commonPath;
+    }
+
+    return undefined;
+}
+
 
 /**
  * Expands tilde (~) in file paths to the user's home directory
@@ -78,7 +126,7 @@ async function checkZizmorVersion(executablePath: string): Promise<{ isValid: bo
     }
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     // Get configuration
     const config = vscode.workspace.getConfiguration('zizmor');
     const enabled = config.get<boolean>('enable', true);
@@ -87,12 +135,19 @@ export function activate(context: vscode.ExtensionContext) {
         return;
     }
 
-    // Get the path to the zizmor executable
-    const rawExecutablePath = config.get<string>('executablePath', 'zizmor');
-    const executablePath = expandTilde(rawExecutablePath);
+    try {
+        // Get the path to the zizmor executable
+        const executablePath = await getZizmor(config);
 
-    // Check zizmor version before starting the language server
-    checkZizmorVersion(executablePath).then(versionCheck => {
+        if (!executablePath) {
+            console.error('zizmor was not found');
+            vscode.window.showErrorMessage('zizmor was not found');
+            return;
+        }
+
+        // Check zizmor version before starting the language server
+        const versionCheck = await checkZizmorVersion(executablePath);
+
         if (!versionCheck.isValid) {
             const errorMessage = versionCheck.version
                 ? `zizmor version ${versionCheck.version} is too old. This extension requires zizmor ${MIN_ZIZMOR_VERSION} or newer. Please update zizmor and try again.`
@@ -105,23 +160,26 @@ export function activate(context: vscode.ExtensionContext) {
 
         console.log(`zizmor version ${versionCheck.version} meets minimum requirement (${MIN_ZIZMOR_VERSION})`);
         startLanguageServer(context, executablePath);
-    }).catch(error => {
-        const errorMessage = `Failed to start zizmor language server: ${error.message}`;
+    } catch (error) {
+        const errorMessage = `Failed to start zizmor language server: ${(error as Error).message}`;
         console.error('zizmor activation failed:', error);
         vscode.window.showErrorMessage(errorMessage);
-    });
+    };
 }
 
 function startLanguageServer(context: vscode.ExtensionContext, executablePath: string) {
 
     // Define the server options
-    const serverExecutable: Executable = {
+    const serverOptions: Executable & ServerOptions = {
         command: executablePath,
         args: ['--lsp'],
-        transport: TransportKind.stdio
+        transport: TransportKind.stdio,
     };
 
-    const serverOptions: ServerOptions = serverExecutable;
+    const config = vscode.workspace.getConfiguration('zizmor.trace');
+    const shouldTrace = config.get<"off" | "messages" | "verbose">('server', "off");
+
+    const traceChannel = shouldTrace !== "off" ? vscode.window.createOutputChannel('zizmor LSP trace') : undefined;
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [
@@ -131,7 +189,7 @@ function startLanguageServer(context: vscode.ExtensionContext, executablePath: s
             { scheme: 'file', language: 'github-actions-workflow', pattern: '**/action.{yml,yaml}' },
             { scheme: 'file', language: 'yaml', pattern: '**/.github/dependabot.{yml,yaml}' },
         ],
-        traceOutputChannel: vscode.window.createOutputChannel('zizmor LSP trace')
+        traceOutputChannel: traceChannel
     };
 
     client = new LanguageClient(
