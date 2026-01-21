@@ -17,15 +17,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-        with:
-          # TODO: https://github.com/actions/setup-node/issues/1304
-          node-version: "latest"
-          cache: "npm"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Run lint
-        run: npm run lint
+        run: bun run lint
