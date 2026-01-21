@@ -11,11 +11,11 @@
     "url": "https://github.com/zizmorcore/zizmor-vscode/issues/new"
   },
   "icon": "assets/icon.png",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "zizmor",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.105.0"
+    "vscode": "^1.108.1"
   },
   "categories": [
     "Programming Languages",
