@@ -70,10 +70,11 @@ async function checkZizmorVersion(executablePath: string): Promise<{ isValid: bo
         const isValid = compareVersions(version, MIN_ZIZMOR_VERSION) >= 0;
 
         return { isValid, version };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
         return {
             isValid: false,
-            error: `Failed to execute zizmor --version: ${error.message}`
+            error: `Failed to execute zizmor --version: ${message}`
         };
     }
 }
@@ -112,13 +113,11 @@ async function startLanguageServer(context: vscode.ExtensionContext, executableP
     context.subscriptions.push(outputChannel);
 
     // Define the server options
-    const serverExecutable: Executable = {
+    const serverOptions: ServerOptions = {
         command: executablePath,
         args: ['--lsp'],
         transport: TransportKind.stdio
     };
-
-    const serverOptions: ServerOptions = serverExecutable;
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [
@@ -144,8 +143,9 @@ async function startLanguageServer(context: vscode.ExtensionContext, executableP
     try {
         await client.start();
         outputChannel.appendLine('zizmor language server started successfully');
-    } catch (error: any) {
-        const errorMessage = `Failed to start zizmor language server: ${error.message}`;
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        const errorMessage = `Failed to start zizmor language server: ${message}`;
         outputChannel.appendLine(errorMessage);
         vscode.window.showErrorMessage(errorMessage);
     }
@@ -177,8 +177,9 @@ async function startLanguageServer(context: vscode.ExtensionContext, executableP
                     try {
                         await client!.restart();
                         vscode.window.showInformationMessage('zizmor language server restarted successfully');
-                    } catch (error: any) {
-                        vscode.window.showErrorMessage(`Failed to restart zizmor: ${error.message}`);
+                    } catch (error: unknown) {
+                        const message = error instanceof Error ? error.message : String(error);
+                        vscode.window.showErrorMessage(`Failed to restart zizmor: ${message}`);
                     }
                 }
             );
@@ -192,9 +193,9 @@ async function startLanguageServer(context: vscode.ExtensionContext, executableP
     );
 }
 
-export function deactivate(): Promise<void> | undefined {
-    if (!client) {
-        return undefined;
+export async function deactivate(): Promise<void> {
+    if (client) {
+        await client.stop();
+        client = undefined;
     }
-    return client.stop();
 }
