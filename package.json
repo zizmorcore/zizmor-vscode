@@ -92,7 +92,7 @@
     "vsce:publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/node": "16.x",
+    "@types/node": "25.x",
     "@types/vscode": "1.75.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
