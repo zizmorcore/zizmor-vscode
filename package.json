@@ -81,8 +81,8 @@
   },
   "scripts": {
     "vscode:prepublish": "bun run package",
-    "compile": "bun build ./src/extension.ts --outdir ./out --target=node --format=cjs --external=* --sourcemap=linked",
-    "watch": "bun build ./src/extension.ts --outdir ./out --target=node --format=cjs --external=* --sourcemap=inline --watch",
+    "compile": "bun build ./src/extension.ts --outdir ./dist --target=node --format=cjs --external=* --sourcemap=linked",
+    "watch": "bun build ./src/extension.ts --outdir ./dist --target=node --format=cjs --external=* --sourcemap=inline --watch",
     "package": "bun run compile",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
@@ -99,7 +99,6 @@
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/vsce": "^3.7.1",
     "eslint": "^8.28.0",
-    "ts-loader": "^9.5.4",
     "typescript": "^4.9.4"
   },
   "dependencies": {
