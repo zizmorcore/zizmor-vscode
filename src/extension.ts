@@ -11,8 +11,7 @@ import {
     Executable
 } from 'vscode-languageclient/node';
 
-let client: LanguageClient;
-let log = vscode.window.createOutputChannel('zizmor Extension Log');
+let client: LanguageClient | undefined;
 
 const execAsync = promisify(exec);
 const MIN_ZIZMOR_VERSION = '1.11.0';
@@ -79,7 +78,7 @@ async function checkZizmorVersion(executablePath: string): Promise<{ isValid: bo
     }
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     // Get configuration
     const config = vscode.workspace.getConfiguration('zizmor');
     const enabled = config.get<boolean>('enable', true);
@@ -93,27 +92,24 @@ export function activate(context: vscode.ExtensionContext) {
     const executablePath = expandTilde(rawExecutablePath);
 
     // Check zizmor version before starting the language server
-    checkZizmorVersion(executablePath).then(versionCheck => {
-        if (!versionCheck.isValid) {
-            const errorMessage = versionCheck.version
-                ? `zizmor version ${versionCheck.version} is too old. This extension requires zizmor ${MIN_ZIZMOR_VERSION} or newer. Please update zizmor and try again.`
-                : `Failed to check zizmor version: ${versionCheck.error}. Please ensure zizmor is installed and accessible at "${executablePath}".`;
+    const versionCheck = await checkZizmorVersion(executablePath);
 
-            log.appendLine(`zizmor version check failed: ${errorMessage}`);
-            vscode.window.showErrorMessage(errorMessage);
-            return;
-        }
+    if (!versionCheck.isValid) {
+        const errorMessage = versionCheck.version
+            ? `zizmor version ${versionCheck.version} is too old. This extension requires zizmor ${MIN_ZIZMOR_VERSION} or newer. Please update zizmor and try again.`
+            : `Failed to check zizmor version: ${versionCheck.error}. Please ensure zizmor is installed and accessible at "${executablePath}".`;
 
-        log.appendLine(`zizmor version ${versionCheck.version} meets minimum requirement (${MIN_ZIZMOR_VERSION})`);
-        startLanguageServer(context, executablePath);
-    }).catch(error => {
-        const errorMessage = `Failed to start zizmor language server: ${error.message}`;
-        log.appendLine(`zizmor activation failed: ${errorMessage}`);
         vscode.window.showErrorMessage(errorMessage);
-    });
+        return;
+    }
+
+    await startLanguageServer(context, executablePath);
 }
 
-function startLanguageServer(context: vscode.ExtensionContext, executablePath: string) {
+async function startLanguageServer(context: vscode.ExtensionContext, executablePath: string) {
+    // Create separate output channels - one for extension logs, one for LSP
+    const outputChannel = vscode.window.createOutputChannel('zizmor');
+    context.subscriptions.push(outputChannel);
 
     // Define the server options
     const serverExecutable: Executable = {
@@ -131,8 +127,7 @@ function startLanguageServer(context: vscode.ExtensionContext, executablePath: s
             { scheme: 'file', language: 'github-actions-workflow', pattern: '**/.github/workflows/*.{yml,yaml}' },
             { scheme: 'file', language: 'github-actions-workflow', pattern: '**/action.{yml,yaml}' },
             { scheme: 'file', language: 'yaml', pattern: '**/.github/dependabot.{yml,yaml}' },
-        ],
-        traceOutputChannel: vscode.window.createOutputChannel('zizmor LSP trace')
+        ]
     };
 
     client = new LanguageClient(
@@ -142,40 +137,57 @@ function startLanguageServer(context: vscode.ExtensionContext, executablePath: s
         clientOptions
     );
 
+    // Add client to subscriptions for proper disposal
+    context.subscriptions.push(client);
+
     // Start the client. This will also launch the server
-    client.start().then(() => {
-        log.appendLine('zizmor language server started successfully');
-    }).catch((error: any) => {
-        log.appendLine(`Failed to start zizmor language server: ${error.message}`);
-        vscode.window.showErrorMessage(`Failed to start zizmor language server: ${error.message}`);
-    });
+    try {
+        await client.start();
+        outputChannel.appendLine('zizmor language server started successfully');
+    } catch (error: any) {
+        const errorMessage = `Failed to start zizmor language server: ${error.message}`;
+        outputChannel.appendLine(errorMessage);
+        vscode.window.showErrorMessage(errorMessage);
+    }
 
     // Register configuration change handler
     context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
+        vscode.workspace.onDidChangeConfiguration(async (event: vscode.ConfigurationChangeEvent) => {
             if (event.affectsConfiguration('zizmor')) {
                 // Restart the language server when configuration changes
-                if (client) {
-                    client.stop().then(() => {
-                        activate(context);
-                    });
-                }
+                await vscode.commands.executeCommand('zizmor.restart');
             }
         })
     );
 
     // Register commands
     context.subscriptions.push(
-        vscode.commands.registerCommand('zizmor.restart', () => {
-            if (client) {
-                client.restart();
+        vscode.commands.registerCommand('zizmor.restart', async () => {
+            if (!client) {
+                return;
             }
+
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Restarting zizmor language server...',
+                    cancellable: false
+                },
+                async () => {
+                    try {
+                        await client!.restart();
+                        vscode.window.showInformationMessage('zizmor language server restarted successfully');
+                    } catch (error: any) {
+                        vscode.window.showErrorMessage(`Failed to restart zizmor: ${error.message}`);
+                    }
+                }
+            );
         })
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('zizmor.showOutputChannel', () => {
-            client.outputChannel.show();
+            outputChannel.show();
         })
     );
 }
