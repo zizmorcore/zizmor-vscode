@@ -8,7 +8,6 @@ import {
     LanguageClientOptions,
     ServerOptions,
     TransportKind,
-    Executable
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient | undefined;
