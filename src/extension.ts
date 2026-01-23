@@ -12,6 +12,7 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
+let log = vscode.window.createOutputChannel('zizmor Extension Log');
 
 const execAsync = promisify(exec);
 const MIN_ZIZMOR_VERSION = '1.11.0';
@@ -98,16 +99,16 @@ export function activate(context: vscode.ExtensionContext) {
                 ? `zizmor version ${versionCheck.version} is too old. This extension requires zizmor ${MIN_ZIZMOR_VERSION} or newer. Please update zizmor and try again.`
                 : `Failed to check zizmor version: ${versionCheck.error}. Please ensure zizmor is installed and accessible at "${executablePath}".`;
 
-            console.error('zizmor version check failed:', errorMessage);
+            log.appendLine(`zizmor version check failed: ${errorMessage}`);
             vscode.window.showErrorMessage(errorMessage);
             return;
         }
 
-        console.log(`zizmor version ${versionCheck.version} meets minimum requirement (${MIN_ZIZMOR_VERSION})`);
+        log.appendLine(`zizmor version ${versionCheck.version} meets minimum requirement (${MIN_ZIZMOR_VERSION})`);
         startLanguageServer(context, executablePath);
     }).catch(error => {
         const errorMessage = `Failed to start zizmor language server: ${error.message}`;
-        console.error('zizmor activation failed:', error);
+        log.appendLine(`zizmor activation failed: ${errorMessage}`);
         vscode.window.showErrorMessage(errorMessage);
     });
 }
@@ -143,9 +144,9 @@ function startLanguageServer(context: vscode.ExtensionContext, executablePath: s
 
     // Start the client. This will also launch the server
     client.start().then(() => {
-        console.log('zizmor language server started successfully');
+        log.appendLine('zizmor language server started successfully');
     }).catch((error: any) => {
-        console.error('Failed to start zizmor language server:', error);
+        log.appendLine(`Failed to start zizmor language server: ${error.message}`);
         vscode.window.showErrorMessage(`Failed to start zizmor language server: ${error.message}`);
     });
 
