@@ -25,3 +25,6 @@ jobs:
 
       - name: Run lint
         run: bun run lint
+
+      - name: Test package build
+        run: bun run vsce:package
