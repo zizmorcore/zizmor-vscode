@@ -7,6 +7,5 @@ mise.toml
 **/node_modules/
 src/
 out/
-webpack.config.js
 **/*.map
 **/*.ts
