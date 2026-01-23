@@ -15,7 +15,8 @@
   "publisher": "zizmor",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.75.0",
+    "bun": "^1.3.1"
   },
   "categories": [
     "Programming Languages",
@@ -80,9 +81,9 @@
   },
   "scripts": {
     "vscode:prepublish": "bun run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile": "bun build ./src/extension.ts --outdir ./out --target=node --format=cjs --external=* --sourcemap=linked",
+    "watch": "bun build ./src/extension.ts --outdir ./out --target=node --format=cjs --external=* --sourcemap=inline --watch",
+    "package": "bun run compile",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "bun run compile-tests && bun run compile && bun run lint",
@@ -99,9 +100,7 @@
     "@vscode/vsce": "^3.7.1",
     "eslint": "^8.28.0",
     "ts-loader": "^9.5.4",
-    "typescript": "^4.9.4",
-    "webpack": "^5.104.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "vscode-languageclient": "^8.1.0"
