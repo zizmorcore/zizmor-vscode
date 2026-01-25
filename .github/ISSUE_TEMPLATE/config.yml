@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/zizmorcore/zizmor/discussions
     about: You can use our GitHub Discussions forum to ask questions and share ideas.
   - name: Security Reports
-    url: https://github.com/zizmorcore/zizmor/security/advisories
+    url: https://github.com/zizmorcore/zizmor-vscode/security/advisories
     about: Please report potential security vulnerabilities here.
