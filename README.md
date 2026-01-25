@@ -1,6 +1,14 @@
 # zizmor-vscode
 
+![Open VSX Version](https://img.shields.io/open-vsx/v/zizmor/zizmor-vscode)
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/zizmor.zizmor-vscode)
+
 A Visual Studio Code extension for [zizmor].
+
+Available on the following marketplaces:
+
+- [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=zizmor.zizmor-vscode)
+- [Open VSX](https://open-vsx.org/extension/zizmor/zizmor-vscode)
 
 [zizmor]: https://github.com/zizmorcore/zizmor
 
@@ -19,9 +27,7 @@ See [zizmor's installation documentation] for system-appropriate instructions.
 [zizmor's installation documentation]: https://docs.zizmor.sh/installation/
 
 Once you have `zizmor` installed, you can install this extension from
-the [VS Code Marketplace].
-
-[VS Code Marketplace]: https://marketplace.visualstudio.com/items?itemName=zizmor.zizmor-vscode
+the Visual Studio Marketplace or from Open VSX. See the links above.
 
 ## Extension Settings
 
@@ -46,8 +52,8 @@ This extension contributes the following commands:
 ### Building from source
 
 ```bash
-npm install
-npm run compile
+bun ci
+bun run compile
 ```
 
 ### Running the extension
@@ -65,7 +71,7 @@ npm run compile
 ### Building for release
 
 ```bash
-npm run vsce:package
+bun run vsce:package
 ```
 
 ## License
