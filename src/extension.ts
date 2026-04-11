@@ -87,9 +87,17 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
 
-    // Get the path to the zizmor executable
+    // Get the path to the zizmor executable, expanding variables and
+    // resolving relative paths against the workspace folder
     const rawExecutablePath = config.get<string>('executablePath', 'zizmor');
-    const executablePath = expandTilde(rawExecutablePath);
+    let executablePath = expandTilde(rawExecutablePath);
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (workspaceFolder) {
+        executablePath = executablePath.replace(/\$\{workspaceFolder\}/g, workspaceFolder);
+        if (!path.isAbsolute(executablePath) && (executablePath.includes('/') || executablePath.includes('\\'))) {
+            executablePath = path.join(workspaceFolder, executablePath);
+        }
+    }
 
     // Check zizmor version before starting the language server
     const versionCheck = await checkZizmorVersion(executablePath);

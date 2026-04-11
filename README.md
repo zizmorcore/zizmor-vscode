@@ -35,6 +35,10 @@ This extension contributes the following settings:
 
 - `zizmor.enable`: Enable/disable the zizmor language server (default: `true`)
 - `zizmor.executablePath`: Path to the zizmor executable (default: `zizmor`)
+
+  Relative paths (e.g. `.venv/bin/zizmor`) are resolved against the workspace
+  folder. The `${workspaceFolder}` placeholder is also supported.
+
 - `zizmor.trace.server`: Traces the communication between VS Code and the language server
   - `"off"` (default): No tracing
   - `"messages"`: Trace messages only
