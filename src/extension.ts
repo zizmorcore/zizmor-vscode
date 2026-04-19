@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as os from 'os';
 import * as path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import {
     LanguageClient,
@@ -12,7 +12,7 @@ import {
 
 let client: LanguageClient | undefined;
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 const MIN_ZIZMOR_VERSION = '1.11.0';
 
 /**
@@ -55,7 +55,7 @@ function compareVersions(version1: string, version2: string): number {
  */
 async function checkZizmorVersion(executablePath: string): Promise<{ isValid: boolean; version?: string; error?: string }> {
     try {
-        const { stdout } = await execAsync(`"${executablePath}" --version`);
+        const { stdout } = await execFileAsync(executablePath, ['--version']);
         const versionMatch = stdout.trim().match(/(\d+\.\d+\.\d+)/);
 
         if (!versionMatch) {
@@ -87,9 +87,36 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
 
-    // Get the path to the zizmor executable
+    // Get the path to the zizmor executable, expanding variables and
+    // resolving relative paths against the workspace folder
     const rawExecutablePath = config.get<string>('executablePath', 'zizmor');
-    const executablePath = expandTilde(rawExecutablePath);
+    let executablePath = expandTilde(rawExecutablePath);
+
+    const usesWorkspaceVar = executablePath.includes('${workspaceFolder}');
+    const isRelativeWithSlashes = !path.isAbsolute(executablePath)
+        && (executablePath.includes('/') || executablePath.includes('\\'));
+
+    if (usesWorkspaceVar || isRelativeWithSlashes) {
+        // Prefer the workspace folder that owns the active document,
+        // falling back to the first workspace folder for multi-root setups
+        // where no workflow is focused at activation time.
+        const activeDocUri = vscode.window.activeTextEditor?.document.uri;
+        const workspaceFolder =
+            (activeDocUri && vscode.workspace.getWorkspaceFolder(activeDocUri)?.uri.fsPath)
+            || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage(
+                `Cannot resolve zizmor.executablePath "${rawExecutablePath}": no workspace folder is available. Open a folder or set an absolute path.`
+            );
+            return;
+        }
+
+        executablePath = executablePath.replace(/\$\{workspaceFolder\}/g, workspaceFolder);
+        if (!path.isAbsolute(executablePath) && (executablePath.includes('/') || executablePath.includes('\\'))) {
+            executablePath = path.join(workspaceFolder, executablePath);
+        }
+    }
 
     // Check zizmor version before starting the language server
     const versionCheck = await checkZizmorVersion(executablePath);
