@@ -2,6 +2,11 @@
 
 All notable changes to the "zizmor-vscode" extension will be documented in this file.
 
+## 0.0.9
+
+* The `executablePath` setting now supports relative paths, as
+  well as expansions of `${workspaceFolder}`.
+
 ## 0.0.2
 
 ### Added
@@ -13,4 +18,3 @@ All notable changes to the "zizmor-vscode" extension will be documented in this 
 ## 0.0.1
 
 This is the first official release of [zizmor](https://zizmor.sh) for VS Code!
-
