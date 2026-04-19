@@ -1,7 +1,6 @@
 # zizmor-vscode
 
 ![Open VSX Version](https://img.shields.io/open-vsx/v/zizmor/zizmor-vscode)
-![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/zizmor.zizmor-vscode)
 
 A Visual Studio Code extension for [zizmor].
 
