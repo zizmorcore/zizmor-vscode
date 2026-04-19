@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as os from 'os';
 import * as path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import {
     LanguageClient,
@@ -12,7 +12,7 @@ import {
 
 let client: LanguageClient | undefined;
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 const MIN_ZIZMOR_VERSION = '1.11.0';
 
 /**
@@ -55,7 +55,7 @@ function compareVersions(version1: string, version2: string): number {
  */
 async function checkZizmorVersion(executablePath: string): Promise<{ isValid: boolean; version?: string; error?: string }> {
     try {
-        const { stdout } = await execAsync(`"${executablePath}" --version`);
+        const { stdout } = await execFileAsync(executablePath, ['--version']);
         const versionMatch = stdout.trim().match(/(\d+\.\d+\.\d+)/);
 
         if (!versionMatch) {
