@@ -91,8 +91,27 @@ export async function activate(context: vscode.ExtensionContext) {
     // resolving relative paths against the workspace folder
     const rawExecutablePath = config.get<string>('executablePath', 'zizmor');
     let executablePath = expandTilde(rawExecutablePath);
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    if (workspaceFolder) {
+
+    const usesWorkspaceVar = executablePath.includes('${workspaceFolder}');
+    const isRelativeWithSlashes = !path.isAbsolute(executablePath)
+        && (executablePath.includes('/') || executablePath.includes('\\'));
+
+    if (usesWorkspaceVar || isRelativeWithSlashes) {
+        // Prefer the workspace folder that owns the active document,
+        // falling back to the first workspace folder for multi-root setups
+        // where no workflow is focused at activation time.
+        const activeDocUri = vscode.window.activeTextEditor?.document.uri;
+        const workspaceFolder =
+            (activeDocUri && vscode.workspace.getWorkspaceFolder(activeDocUri)?.uri.fsPath)
+            || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage(
+                `Cannot resolve zizmor.executablePath "${rawExecutablePath}": no workspace folder is available. Open a folder or set an absolute path.`
+            );
+            return;
+        }
+
         executablePath = executablePath.replace(/\$\{workspaceFolder\}/g, workspaceFolder);
         if (!path.isAbsolute(executablePath) && (executablePath.includes('/') || executablePath.includes('\\'))) {
             executablePath = path.join(workspaceFolder, executablePath);
