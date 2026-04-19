@@ -83,4 +83,3 @@ bun run vsce:package
 This extension is licensed under the terms of the MIT license.
 
 See [LICENSE](LICENSE) for the full terms.
-
