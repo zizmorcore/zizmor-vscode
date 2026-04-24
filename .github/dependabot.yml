@@ -20,12 +20,8 @@ updates:
         patterns:
           - "webpack*"
           - "*-loader"
-      vscode:
-        patterns:
-          - "@types/vscode"
-          - "@vscode/*"
-          - "vscode-*"
     ignore:
+      - dependency-name: "@types/vscode"
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
