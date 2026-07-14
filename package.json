@@ -88,6 +88,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "bun run compile-tests && bun run compile && bun run lint",
     "lint": "eslint src --ext ts",
+    "typecheck": "tsc --noEmit -p .",
     "test": "node ./out/test/runTest.js",
     "vsce:package": "vsce package",
     "vsce:publish": "vsce publish"
