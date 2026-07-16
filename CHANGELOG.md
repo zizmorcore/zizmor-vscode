@@ -2,6 +2,10 @@
 
 All notable changes to the "zizmor-vscode" extension will be documented in this file.
 
+## 0.0.10
+
+* Unify the extension's lifecycle handling
+
 ## 0.0.9
 
 * The `executablePath` setting now supports relative paths, as
