@@ -49,6 +49,7 @@ jobs:
           PRERELEASE_FLAG: ${{ contains(needs.plan-release.outputs.release-tag, '-rc') && '--prerelease' || '' }}
 
   package:
+    name: Build and attach VSIX for release
     needs: [plan-release, draft-release]
     runs-on: ubuntu-latest
     permissions:
@@ -81,7 +82,8 @@ jobs:
         shell: bash
 
   finalize:
-    needs: package
+    name: Finalize release
+    needs: [plan-release, package]
     runs-on: ubuntu-slim
     permissions:
       contents: write # to finalize + publish the release
