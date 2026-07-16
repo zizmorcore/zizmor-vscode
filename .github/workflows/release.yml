@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions: {}
+
+env:
+  GH_REPO: zizmorcore/zizmor-vscode # affects all `gh` invovations below
+
+jobs:
+  plan-release:
+    name: Plan release
+
+    runs-on: ubuntu-slim
+
+    permissions: {}
+
+    outputs:
+      release-tag: ${{ steps.determine-tag.outputs.RELEASE_TAG }}
+
+    steps:
+      - name: Determine release tag
+        id: determine-tag
+        run: echo "RELEASE_TAG=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+
+  draft-release:
+    needs: plan-release
+    name: Draft GitHub release for ${{ needs.plan-release.outputs.release-tag }}
+
+    runs-on: ubuntu-slim
+
+    permissions:
+      contents: write # to create the releaseco
+
+    steps:
+      - name: Create draft release
+        run: |
+          # NOTE: No quotes around PRERELEASE_FLAG so that it expands to either `--prerelease` or an empty string,
+          # rather than an empty argument.
+          gh release create --generate-notes --draft --verify-tag ${PRERELEASE_FLAG} "${RELEASE_TAG}" --title "${RELEASE_TAG}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.plan-release.outputs.release-tag }}
+          PRERELEASE_FLAG: ${{ contains(needs.plan-release.outputs.release-tag, '-rc') && '--prerelease' || '' }}
+
+  package:
+    needs: draft-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # for uploading release artifacts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          no-cache: true
+
+      - name: Install dependencies
+        run: bun ci
+        shell: bash
+
+      - name: Build VSIX
+        run: bun run vsce:package
+        shell: bash
+
+      - name: Attach VSIX to release
+        run: |
+          gh release upload "${RELEASE_TAG}" *.vsix
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.plan-release.outputs.release-tag }}
+        shell: bash
+
+  finalize:
+    needs: package
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write # to finalize + publish the release
+    steps:
+      - run: |
+          gh release edit "${RELEASE_TAG}" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.plan-release.outputs.release-tag }}
+        shell: bash
