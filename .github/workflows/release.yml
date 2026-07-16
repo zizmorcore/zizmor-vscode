@@ -49,7 +49,7 @@ jobs:
           PRERELEASE_FLAG: ${{ contains(needs.plan-release.outputs.release-tag, '-rc') && '--prerelease' || '' }}
 
   package:
-    needs: draft-release
+    needs: [plan-release, draft-release]
     runs-on: ubuntu-latest
     permissions:
       contents: write # for uploading release artifacts
