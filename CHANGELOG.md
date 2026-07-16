@@ -2,6 +2,10 @@
 
 All notable changes to the "zizmor-vscode" extension will be documented in this file.
 
+## 0.0.11
+
+* Release builds are now performed in CI
+
 ## 0.0.10
 
 * Unify the extension's lifecycle handling
