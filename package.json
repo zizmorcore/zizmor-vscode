@@ -94,7 +94,7 @@
     "vsce:publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/bun": "1.3.x",
+    "@types/bun": "1.4.x",
     "@types/vscode": "1.75.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
