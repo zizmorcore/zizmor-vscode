@@ -38,6 +38,8 @@ This extension contributes the following settings:
   Relative paths (e.g. `.venv/bin/zizmor`) are resolved against the workspace
   folder. The `${workspaceFolder}` placeholder is also supported.
 
+- `zizmor.persona`: Persona used while auditing: `regular` (default), `pedantic`,
+  or `auditor`. Non-default personas require zizmor 1.25.0 or newer.
 - `zizmor.trace.server`: Traces the communication between VS Code and the language server
   - `"off"` (default): No tracing
   - `"messages"`: Trace messages only
