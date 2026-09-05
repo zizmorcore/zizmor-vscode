@@ -163,7 +163,7 @@ async function startLanguageServer(): Promise<StartResult> {
     // Define the server options
     const serverOptions: ServerOptions = {
         command: executablePath,
-        args: ['--lsp'],
+        args: ['--persona', config.get<string>('persona', 'regular'), '--lsp'],
         transport: TransportKind.stdio
     };
 

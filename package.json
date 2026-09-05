@@ -66,6 +66,16 @@
           "description": "Path to the zizmor executable",
           "scope": "machine-overridable"
         },
+        "zizmor.persona": {
+          "type": "string",
+          "enum": [
+            "regular",
+            "pedantic",
+            "auditor"
+          ],
+          "default": "regular",
+          "description": "The persona to use while auditing. Non-default personas require zizmor 1.25.0 or newer."
+        },
         "zizmor.trace.server": {
           "type": "string",
           "enum": [
